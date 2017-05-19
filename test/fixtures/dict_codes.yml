@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  typeId: MyString
+  codeId: MyString
+  codeName: MyString
+  codeStatus: MyString
+  lastUpdateUser: MyString
+  codeSeq: 1
+
+two:
+  typeId: MyString
+  codeId: MyString
+  codeName: MyString
+  codeStatus: MyString
+  lastUpdateUser: MyString
+  codeSeq: 1

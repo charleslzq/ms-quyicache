@@ -1,0 +1,2 @@
+class DictCode < ApplicationRecord
+end
