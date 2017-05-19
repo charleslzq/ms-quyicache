@@ -4,54 +4,50 @@ class MigrateController < ApplicationController
   @@base_url = 'http://localhost:8099/export?type='.freeze
 
   def import
-    importAppHospital
-    importMedicineShop
-    importDictCode
+    import_app_hospital
+    import_medicine_shops
+    import_dict_code
   end
 
   private
-  def get type
+  def get(type)
     url = @@base_url + type
     JSON.parse Net::HTTP.get(URI(url))
   end
 
-  def importAppHospital
-    appHospitalList = get 'appHospital'
-    count = 0
-    puts "Get #{appHospitalList.length} hospital(s) from original data source"
-    appHospitalList.each {|appHospital|
+  def import_app_hospital
+    app_hospital_list = get 'appHospital'
+    puts "Get #{app_hospital_list.length} hospital(s) from original data source"
+    AppHospital.delete_all
+    app_hospital_list.each {|appHospital|
       # puts appHospital
       AppHospital.create appHospital
-      count += 1
     }
-    puts "Insert #{count} Hospital(s)"
+    puts 'Sync Hospital(s) Completed'
   end
 
-  def importMedicineShop
-    medicineShopList = get 'medicineShop'
-    puts "Get #{medicineShopList.length} Shops from original data source"
-    count = 0
-    medicineShopList.each {|medicineShop|
+  def import_medicine_shops
+    medicine_shop_list = get 'medicineShop'
+    puts "Get #{medicine_shop_list.length} Shops from original data source"
+    MedicineShop.delete_all
+    medicine_shop_list.each {|medicineShop|
       # puts medicineShop
       MedicineShop.create(shopId: medicineShop['medId'], shopName: medicineShop['medName'])
-      count += 1
     }
-    puts "Insert #{count} Shop(s)"
+    puts 'Sync Shop(s) Completed'
   end
 
-  def importDictCode
-    dictCodes = get 'dictCode'
-    puts "Get #{dictCodes.length} DictCodes from original data source"
-    count = 0
-    dictCodes.each {|dictCode|
+  def import_dict_code
+    dict_codes = get 'dictCode'
+    puts "Get #{dict_codes.length} DictCodes from original data source"
+    DictCode.delete_all
+    dict_codes.each {|dictCode|
       puts dictCode
       DictCode.create(typeId: dictCode['dictTypeId'], codeId: dictCode['dictCodeId'],
                       codeName: dictCode['dictCodeName'], codeStatus: dictCode['dictCodeStatus'],
                       lastUpdateUser: dictCode['lastUpdateUser'], codeSeq: dictCode['dictCodeSeq'],
-                      lastUpdateTime: dictCode['lastUpdateTime']
-      )
-      count += 1
+                      lastUpdateTime: dictCode['lastUpdateTime'])
     }
-    puts "Insert #{count} DictCode(s)"
+    puts 'Sync DictCode(s) Completed'
   end
 end
