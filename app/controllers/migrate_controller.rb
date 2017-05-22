@@ -4,7 +4,7 @@ class MigrateController < ApplicationController
   @@base_url = 'http://localhost:8099/export?type='.freeze
 
   def import
-    import_app_hospital
+    # import_app_hospital
     import_medicine_shops
     import_dict_code
   end
@@ -19,10 +19,7 @@ class MigrateController < ApplicationController
     app_hospital_list = get 'appHospital'
     puts "Get #{app_hospital_list.length} hospital(s) from original data source"
     AppHospital.delete_all
-    app_hospital_list.each {|appHospital|
-      # puts appHospital
-      AppHospital.create appHospital
-    }
+    AppHospital.import_from_hash_list app_hospital_list
     puts 'Sync Hospital(s) Completed'
   end
 
@@ -30,9 +27,9 @@ class MigrateController < ApplicationController
     medicine_shop_list = get 'medicineShop'
     puts "Get #{medicine_shop_list.length} Shops from original data source"
     MedicineShop.delete_all
-    medicine_shop_list.each {|medicineShop|
-      # puts medicineShop
-      MedicineShop.create(shopId: medicineShop['medId'], shopName: medicineShop['medName'])
+    MedicineShop.import_from_hash_list medicine_shop_list, {
+        'medId': 'shopId',
+        'medName': 'shopName'
     }
     puts 'Sync Shop(s) Completed'
   end
@@ -43,10 +40,17 @@ class MigrateController < ApplicationController
     DictCode.delete_all
     dict_codes.each {|dictCode|
       puts dictCode
-      DictCode.create(typeId: dictCode['dictTypeId'], codeId: dictCode['dictCodeId'],
-                      codeName: dictCode['dictCodeName'], codeStatus: dictCode['dictCodeStatus'],
-                      lastUpdateUser: dictCode['lastUpdateUser'], codeSeq: dictCode['dictCodeSeq'],
-                      lastUpdateTime: dictCode['lastUpdateTime'])
+      # DictCode.create(typeId: dictCode['dictTypeId'], codeId: dictCode['dictCodeId'],
+      #                 codeName: dictCode['dictCodeName'], codeStatus: dictCode['dictCodeStatus'],
+      #                 lastUpdateUser: dictCode['lastUpdateUser'], codeSeq: dictCode['dictCodeSeq'],
+      #                 lastUpdateTime: dictCode['lastUpdateTime'])
+      DictCode.import_from_hash dictCode, {
+          dictTypeId: 'typeId',
+          dictCodeId: 'codeId',
+          dictCodeName: 'codeName',
+          dictCodeStatus: 'codeStatus',
+          dictCodeSeq: 'codeSeq'
+      }
     }
     puts 'Sync DictCode(s) Completed'
   end

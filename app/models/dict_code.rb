@@ -1,2 +1,3 @@
-class DictCode < ApplicationRecord
+class DictCode < ImportableApplicationRecord
+  self.primary_key='codeId'
 end
