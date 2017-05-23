@@ -30,10 +30,9 @@ module QyUtil
         else
           result_hash = {}
           hash.entries.each_with_object(result_hash) { |(key, value), result|
-            result[(key_map.include?(key.to_s.to_sym) ?
-                key_map[key.to_s.to_sym].to_s.to_sym : key.to_s.to_sym)] = value
+            result[(key_map.include?(key) ? key_map[key] : key)] = value
           }
-          update_or_create_by_hash result_hash
+          update_or_create_by_hash result_hash.stringify_keys!
         end
       end
 

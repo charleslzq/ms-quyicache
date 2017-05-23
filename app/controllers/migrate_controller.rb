@@ -16,9 +16,9 @@ class MigrateController < ApplicationController
 
   def import_medicine_shop
     MedicineShopImportJob.perform_later BASE_URL + 'medicineShop', {
-        'medId': 'shopId',
-        'medName': 'shopName'
-    }
+        medId: 'shopId',
+        medName: 'shopName'
+    }.stringify_keys!
   end
 
   def import_dict_code
@@ -28,6 +28,6 @@ class MigrateController < ApplicationController
         dictCodeName: 'codeName',
         dictCodeStatus: 'codeStatus',
         dictCodeSeq: 'codeSeq'
-    }
+    }.stringify_keys!
   end
 end
