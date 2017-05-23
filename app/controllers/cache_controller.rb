@@ -1,4 +1,6 @@
 class CacheController < ApplicationController
+  class_attribute :data_list
+
   def get_by_type_id
     type = params[:typeId]
     result = do_get_by_type_id type
@@ -17,16 +19,16 @@ class CacheController < ApplicationController
   end
 
   def refresh
-    @data_list = fetch_data
-    @data_list.map {|data| data.typeId}.uniq!.each {|type| self.do_get_by_type_id type}
-    @data_list.each {|data| self.do_get_by_code_id data.codeId, data.typeId}
+    self.data_list = fetch_data
+    self.data_list.map {|data| data.typeId}.uniq!.each {|type| self.do_get_by_type_id type}
+    self.data_list.each {|data| self.do_get_by_code_id data.codeId, data.typeId}
   end
 
   def do_get_by_type_id(type)
-    @data_list ||= fetch_data
+    self.data_list ||= fetch_data
     Rails.cache.fetch("dictionary_code/typeId/#{type}") do
       result = {}
-      @data_list.keep_if{|data| data.typeId == type}.each_with_object(result) do |data, hash|
+      self.data_list.keep_if{|data| data.typeId == type}.each_with_object(result) do |data, hash|
         hash[data.codeId] = data.codeName
       end
       result
@@ -34,9 +36,9 @@ class CacheController < ApplicationController
   end
 
   def do_get_by_code_id(code_id, type_id)
-    @data_list ||= fetch_data
+    self.data_list ||= fetch_data
     Rails.cache.fetch("dictionary_code/codeId/#{code_id}&&#{type_id}") do
-      @data_list.keep_if{|data| data.codeId == code_id and data.typeId == type_id}
+      self.data_list.keep_if{|data| data.codeId == code_id and data.typeId == type_id}
     end
   end
 
