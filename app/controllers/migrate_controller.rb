@@ -1,5 +1,5 @@
 class MigrateController < ApplicationController
-  BASE_URL = 'http://localhost:8099/export?type='.freeze
+  BASE_URL = "#{Rails.configuration.cache['url']}/export?type=".freeze
 
   def import
     self.send "import_#{params[:type]}"
