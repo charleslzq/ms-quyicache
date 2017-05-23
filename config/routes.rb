@@ -1,9 +1,9 @@
 Rails.application.routes.draw do
-  get 'cache/getByTypeId'
+  get 'dictCodes' => 'cache#get_by_type_id'
 
-  get 'cache/getByCodeId'
+  get 'dictCodes/:id' => 'cache#get_by_code_id'
 
-  post 'cache/refresh'
+  post 'dictCodes' => 'cache#refresh'
 
   get 'data/list'
 
