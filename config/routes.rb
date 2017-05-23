@@ -5,11 +5,7 @@ Rails.application.routes.draw do
 
   post 'cache/refresh'
 
-  get 'data/appHospital'
-
-  get 'data/medicineShop'
-
-  get 'data/dictCode'
+  get 'data/list'
 
   get 'migrate/import'
 

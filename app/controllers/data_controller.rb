@@ -1,22 +1,22 @@
 class DataController < ApplicationController
-  def appHospital
-    @hospitals= AppHospital.all
+
+  def list
+    @list = self.send "#{params[:type]}"
     respond_to do |format|
-      format.json { render json: @hospitals}
+      format.json { render json: @list}
     end
   end
 
-  def medicineShop
-    @shops= MedicineShop.all
-    respond_to do |format|
-      format.json { render json: @shops}
-    end
+  private
+  def app_hospital
+    AppHospital.all
   end
 
-  def dictCode
-    @codes = DictCode.all
-    respond_to do |format|
-      format.json { render json: @codes}
-    end
+  def medicine_shop
+    MedicineShop.all
+  end
+
+  def dict_code
+    DictCode.all
   end
 end

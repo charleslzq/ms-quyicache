@@ -1,4 +1,14 @@
+require 'net/http'
+
 module QyUtil
+
+  module GetFromHttp
+    extend ActiveSupport::Concern
+
+    def get(url)
+      JSON.parse Net::HTTP.get(URI(url))
+    end
+  end
 
 
   module Import
