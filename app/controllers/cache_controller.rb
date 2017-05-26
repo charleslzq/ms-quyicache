@@ -1,9 +1,11 @@
 class CacheController < ApplicationController
   class_attribute :data_list
 
+  before_action :init
+
   def get_by_type_id
     type = params[:typeId]
-    result = do_get_by_type_id type
+    result = Rails.cache.fetch "dictionary_code/typeId/#{type}"
     respond_to do |format|
       format.json { render json: result}
     end
@@ -12,7 +14,7 @@ class CacheController < ApplicationController
   def get_by_code_id
     code_id = params[:id]
     type_id = params[:typeId]
-    result = do_get_by_code_id code_id, type_id
+    result = Rails.cache.fetch "dictionary_code/codeId/#{code_id}&&#{type_id}"
     respond_to do |format|
       format.json { render json: result}
     end
@@ -20,26 +22,10 @@ class CacheController < ApplicationController
 
   def refresh
     self.data_list = fetch_data
-    self.data_list.map {|data| data.typeId}.uniq!.each {|type| self.do_get_by_type_id type}
-    self.data_list.each {|data| self.do_get_by_code_id data.codeId, data.typeId}
-  end
-
-  def do_get_by_type_id(type)
-    self.data_list ||= fetch_data
-    Rails.cache.fetch("dictionary_code/typeId/#{type}") do
-      result = {}
-      self.data_list.keep_if{|data| data.typeId == type}.each_with_object(result) do |data, hash|
-        hash[data.codeId] = data.codeName
-      end
-      result
-    end
-  end
-
-  def do_get_by_code_id(code_id, type_id)
-    self.data_list ||= fetch_data
-    Rails.cache.fetch("dictionary_code/codeId/#{code_id}&&#{type_id}") do
-      self.data_list.keep_if{|data| data.codeId == code_id and data.typeId == type_id}
-    end
+    self.data_list.group_by{|data| data.typeId}.each {|type, code_list|
+      Rails.cache.write("dictionary_code/typeId/#{type}", code_list.index_by(&:codeId))
+    }
+    self.data_list.each {|data| Rails.cache.write "dictionary_code/codeId/#{data.codeId}&&#{data.typeId}", data}
   end
 
   def fetch_data
@@ -48,6 +34,13 @@ class CacheController < ApplicationController
     data_list.concat MedicineShop.all.map{|shop|DictionaryCode.from_medicine_shop shop}
     data_list.concat DictCode.all.map{|code|DictionaryCode.from_dict_code code}
     data_list
+  end
+
+  private
+  def init
+    if data_list.nil? or data_list.empty?
+      refresh
+    end
   end
 end
 
